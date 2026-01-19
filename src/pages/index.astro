@@ -1,5 +1,7 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Leaderboard from "../components/Leaderboard.astro";
+
+const locale = Astro.currentLocale || "it";
 ---
 
-<Layout />
+<Leaderboard locale={locale} />

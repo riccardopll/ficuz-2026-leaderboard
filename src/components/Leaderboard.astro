@@ -1,0 +1,73 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getTranslations } from "../i18n/utils";
+
+interface Props {
+  locale: string;
+}
+
+const { locale } = Astro.props;
+const t = getTranslations(locale);
+
+const leaderboardData = [
+  { name: "Filippo", points: 1, pending: true },
+  { name: "Antonio", points: 1, pending: true },
+  { name: "Diego", points: 0, pending: true },
+  { name: "Francesco", points: 0, pending: false },
+  { name: "Riccardo", points: 0, pending: false },
+];
+
+const sortedData = [...leaderboardData].sort((a, b) => b.points - a.points);
+---
+
+<Layout title={t.title} locale={locale}>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">
+      {t.title}
+    </h1>
+
+    <div class="overflow-x-auto">
+      <table class="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-md">
+        <thead class="bg-gray-800 text-white">
+          <tr>
+            <th class="px-6 py-3 text-left">{t.name}</th>
+            <th class="px-6 py-3 text-left">{t.ficuzPoints}</th>
+            <th class="px-6 py-3 text-left">{t.pendingFicuzPoint}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          {
+            sortedData.map((entry, index) => {
+              const medal =
+                index === 0
+                  ? "🥇"
+                  : index === 1
+                    ? "🥈"
+                    : index === 2
+                      ? "🥉"
+                      : "";
+              return (
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 font-medium text-gray-900">
+                    {entry.name}
+                    {medal && <span class="mr-2">{medal}</span>}
+                  </td>
+                  <td class="px-6 py-4 text-gray-700">
+                    {entry.points} {t.unit}
+                  </td>
+                  <td class="px-6 py-4">
+                    <span
+                      class={`px-2 py-1 rounded text-sm ${entry.pending ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}`}
+                    >
+                      {entry.pending ? t.yes : t.no}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</Layout>
