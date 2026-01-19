@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "lint": "npx prettier . --write",
+    "build": "npx astro build",
     "dev": "npx astro build && npx wrangler dev",
     "deploy": "npx astro build && npx wrangler deploy",
     "db:migrate": "drizzle-kit generate && wrangler d1 migrations apply ficuz-2026-db --remote",
