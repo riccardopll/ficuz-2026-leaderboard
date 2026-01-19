@@ -1,6 +1,9 @@
 ---
+import { desc } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/d1";
 import Layout from "../layouts/Layout.astro";
 import { getTranslations } from "../i18n/utils";
+import { players } from "../db/schema";
 
 interface Props {
   locale: string;
@@ -9,15 +12,11 @@ interface Props {
 const { locale } = Astro.props;
 const t = getTranslations(locale);
 
-const leaderboardData = [
-  { name: "Filippo", points: 1, pending: true },
-  { name: "Antonio", points: 1, pending: true },
-  { name: "Diego", points: 1, pending: true },
-  { name: "Francesco", points: 0, pending: false },
-  { name: "Riccardo", points: 0, pending: false },
-];
-
-const sortedData = [...leaderboardData].sort((a, b) => b.points - a.points);
+const db = drizzle(Astro.locals.runtime.env.DB);
+const sortedData = await db
+  .select()
+  .from(players)
+  .orderBy(desc(players.points));
 ---
 
 <Layout title={t.title} locale={locale}>
