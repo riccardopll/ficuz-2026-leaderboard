@@ -31,7 +31,6 @@ const sortedData = await db
           <tr>
             <th class="px-6 py-3 text-left">{t.name}</th>
             <th class="px-6 py-3 text-left">{t.ficuzPoints}</th>
-            <th class="px-6 py-3 text-left">{t.pendingFicuzPoint}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -53,13 +52,6 @@ const sortedData = await db
                   </td>
                   <td class="px-6 py-4 text-gray-700">
                     {entry.points} {t.unit}
-                  </td>
-                  <td class="px-6 py-4">
-                    <span
-                      class={`px-2 py-1 rounded text-sm ${entry.pending ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}`}
-                    >
-                      {entry.pending ? t.yes : t.no}
-                    </span>
                   </td>
                 </tr>
               );
