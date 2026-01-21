@@ -9,5 +9,6 @@ export const players = sqliteTable("players", {
     .$defaultFn(() => new Date()),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
-    .$defaultFn(() => new Date()),
+    .$defaultFn(() => new Date())
+    .$onUpdate(() => new Date()),
 });
