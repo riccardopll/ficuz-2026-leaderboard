@@ -10,6 +10,7 @@ export const translations = {
     rule3Desc: "",
     rule4Desc: "",
     rule5Desc: "",
+    rule6Desc: "",
   },
   it: {
     title: "Classifica Ficuz 2026",
@@ -24,5 +25,7 @@ export const translations = {
     rule3Desc: "Per chi mente sulla propria frequenza",
     rule4Desc: "Per chi arriva in ritardo di più di 30 minuti",
     rule5Desc: "Per chi arriva in ritardo di più di 1 ora",
+    rule6Desc:
+      "Gli allenamenti da soli richiedono una foto postata nel gruppo per essere contati nel minimo settimanale",
   },
 };
