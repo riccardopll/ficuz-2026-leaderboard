@@ -1,9 +1,9 @@
 ---
-import { desc } from "drizzle-orm";
+import { and, desc, eq, lt, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import Layout from "../layouts/Layout.astro";
 import { getTranslations } from "../i18n/utils";
-import { players } from "../db/schema";
+import { players, pointTransactions } from "../db/schema";
 
 interface Props {
   locale: string;
@@ -13,17 +13,84 @@ const { locale } = Astro.props;
 const t = getTranslations(locale);
 
 const db = drizzle(Astro.locals.runtime.env.DB);
-const sortedData = await db
-  .select()
+
+const startYear = 2026;
+const now = new Date();
+const currentYear = now.getFullYear();
+const currentMonth = now.getMonth();
+
+const periods: { value: string; label: string }[] = [];
+for (let year = startYear; year <= currentYear; year++) {
+  const maxMonth = year === currentYear ? currentMonth : 11;
+  for (let month = 0; month <= maxMonth; month++) {
+    const value = `${year}-${String(month + 1).padStart(2, "0")}`;
+    const label = `${t.months[month]} ${year}`;
+    periods.push({ value, label });
+  }
+}
+
+const period =
+  Astro.url.searchParams.get("period") ||
+  `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
+
+const [year, month] = period.split("-").map(Number);
+const startOfMonth = new Date(year, month - 1, 1);
+const endOfMonth = new Date(year, month, 1);
+
+const results = await db
+  .select({
+    name: players.name,
+    cumulative: sql<number>`coalesce(sum(${pointTransactions.points}), 0)`.as(
+      "cumulative",
+    ),
+    delta:
+      sql<number>`coalesce(sum(case when ${pointTransactions.createdAt} >= ${startOfMonth.getTime()} then ${pointTransactions.points} else 0 end), 0)`.as(
+        "delta",
+      ),
+  })
   .from(players)
-  .orderBy(desc(players.points));
+  .leftJoin(
+    pointTransactions,
+    and(
+      eq(pointTransactions.playerId, players.id),
+      lt(pointTransactions.createdAt, endOfMonth),
+    ),
+  )
+  .groupBy(players.id)
+  .orderBy(
+    desc(
+      sql`coalesce(sum(case when ${pointTransactions.createdAt} >= ${startOfMonth.getTime()} then ${pointTransactions.points} else 0 end), 0)`,
+    ),
+    players.name,
+  );
+
+const basePath = locale === "en" ? "/en" : "";
 ---
 
 <Layout title={t.title} locale={locale}>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">
-      {t.title}
-    </h1>
+    <div class="text-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-800">
+        {t.title}
+      </h1>
+      <div class="mt-2 flex justify-center gap-3">
+        {
+          periods.map((p) => (
+            <a
+              href={`${basePath}/?period=${p.value}`}
+              class:list={[
+                "text-lg transition-colors border-b-2 pb-1",
+                period === p.value
+                  ? "text-gray-800 border-gray-800 font-semibold"
+                  : "text-gray-400 border-transparent hover:text-gray-600 hover:border-gray-300",
+              ]}
+            >
+              {p.label}
+            </a>
+          ))
+        }
+      </div>
+    </div>
 
     <div class="overflow-x-auto">
       <table class="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-md">
@@ -35,7 +102,7 @@ const sortedData = await db
         </thead>
         <tbody class="divide-y divide-gray-200">
           {
-            sortedData.map((entry, index) => {
+            results.map((entry, index) => {
               const medal =
                 index === 0
                   ? "🥇"
@@ -51,7 +118,10 @@ const sortedData = await db
                     {medal && <span class="mr-2">{medal}</span>}
                   </td>
                   <td class="px-6 py-4 text-gray-700">
-                    {entry.points} {t.unit}
+                    {entry.cumulative} {t.unit}
+                    {entry.delta > 0 && (
+                      <span class="ml-2 text-red-600">(+{entry.delta})</span>
+                    )}
                   </td>
                 </tr>
               );
@@ -80,13 +150,19 @@ const sortedData = await db
           </span>
           <p class="text-gray-700">{t.rule5Desc}</p>
         </div>
-        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-          <span
-            class="shrink-0 w-16 h-8 flex items-center justify-center bg-red-500 text-white font-bold rounded text-sm"
-          >
-            +1 PF
-          </span>
-          <p class="text-gray-700">{t.rule1Desc}</p>
+        <div class="flex flex-col gap-2 p-3 bg-gray-50 rounded-lg">
+          <div class="flex items-center gap-3">
+            <span
+              class="shrink-0 w-16 h-8 flex items-center justify-center bg-red-500 text-white font-bold rounded text-sm"
+            >
+              +1 PF
+            </span>
+            <p class="text-gray-700">{t.rule1Desc}</p>
+          </div>
+          <div class="flex text-gray-500 text-sm ml-19 pl-1">
+            <span class="shrink-0 mr-1">*</span>
+            <span>{t.rule1Note}</span>
+          </div>
         </div>
         <div class="flex flex-col gap-2 p-3 bg-gray-50 rounded-lg">
           <div class="flex items-center gap-3">
@@ -99,7 +175,11 @@ const sortedData = await db
           </div>
           <div class="flex text-gray-500 text-sm ml-19 pl-1">
             <span class="shrink-0 mr-1">*</span>
-            <span>{t.rule6Desc}</span>
+            <span>{t.rule2Note1}</span>
+          </div>
+          <div class="flex text-gray-500 text-sm ml-19 pl-1">
+            <span class="shrink-0 mr-1">*</span>
+            <span>{t.rule2Note2}</span>
           </div>
         </div>
         <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">

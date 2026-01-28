@@ -1,18 +1,21 @@
 {
   "name": "ficuz-2026-leaderboard",
-  "type": "module",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
-    "lint": "npx prettier . --write",
-    "dev": "npx astro build && npx wrangler dev",
-    "deploy": "npx astro build && npx wrangler deploy",
     "db:migrate": "drizzle-kit generate && wrangler d1 migrations apply ficuz-2026-db --remote",
-    "db:migrate:local": "drizzle-kit generate && wrangler d1 migrations apply ficuz-2026-db"
+    "db:migrate:local": "drizzle-kit generate && wrangler d1 migrations apply ficuz-2026-db",
+    "db:studio": "drizzle-kit studio",
+    "db:studio:local": "drizzle-kit studio --config drizzle.config.local.ts",
+    "deploy": "npx astro build && npx wrangler deploy",
+    "dev": "npx astro build && npx wrangler dev",
+    "lint": "npx prettier . --write && npx sort-package-json"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.12",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.11",
+    "better-sqlite3": "^12.6.2",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
     "tailwindcss": "^4.1.18"
