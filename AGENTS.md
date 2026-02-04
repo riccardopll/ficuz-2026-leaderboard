@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 Multilingual leaderboard app (Astro + Cloudflare D1) for tracking player points and penalties.
 
