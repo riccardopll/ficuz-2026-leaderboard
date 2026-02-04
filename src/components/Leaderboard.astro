@@ -93,11 +93,11 @@ const basePath = locale === "en" ? "/en" : "";
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-md">
+      <table class="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-md table-fixed">
         <thead class="bg-gray-800 text-white">
           <tr>
-            <th class="px-6 py-3 text-left">{t.name}</th>
-            <th class="px-6 py-3 text-left">{t.ficuzPoints}</th>
+            <th class="px-6 py-3 text-left w-3/5">{t.name}</th>
+            <th class="px-6 py-3 text-left w-2/5">{t.ficuzPoints}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -113,15 +113,17 @@ const basePath = locale === "en" ? "/en" : "";
                       : "";
               return (
                 <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 font-medium text-gray-900">
-                    {entry.name}
-                    {medal && <span class="mr-2">{medal}</span>}
+                  <td class="px-6 py-4 font-medium text-gray-900 w-3/5">
+                    <span class="inline-flex items-center gap-2">
+                      <span>{entry.name}</span>
+                      {medal && <span>{medal}</span>}
+                    </span>
                   </td>
-                  <td class="px-6 py-4 text-gray-700">
-                    {entry.cumulative} {t.unit}
-                    {entry.delta > 0 && (
-                      <span class="ml-2 text-red-600">(+{entry.delta})</span>
-                    )}
+                  <td class="px-6 py-4 text-gray-700 w-2/5 tabular-nums">
+                    <span>{entry.cumulative} {t.unit}</span>
+                    <span class="ml-2 text-red-600 inline-block w-12 text-right">
+                      {entry.delta > 0 ? `(+${entry.delta})` : ""}
+                    </span>
                   </td>
                 </tr>
               );
