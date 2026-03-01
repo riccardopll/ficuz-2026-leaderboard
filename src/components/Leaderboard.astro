@@ -37,16 +37,14 @@ const [year, month] = period.split("-").map(Number);
 const startOfMonth = new Date(year, month - 1, 1);
 const endOfMonth = new Date(year, month, 1);
 
+const cumulativePoints = sql<number>`coalesce(sum(${pointTransactions.points}), 0)`;
+const monthlyDelta = sql<number>`coalesce(sum(case when ${pointTransactions.createdAt} >= ${startOfMonth.getTime()} then ${pointTransactions.points} else 0 end), 0)`;
+
 const results = await db
   .select({
     name: players.name,
-    cumulative: sql<number>`coalesce(sum(${pointTransactions.points}), 0)`.as(
-      "cumulative",
-    ),
-    delta:
-      sql<number>`coalesce(sum(case when ${pointTransactions.createdAt} >= ${startOfMonth.getTime()} then ${pointTransactions.points} else 0 end), 0)`.as(
-        "delta",
-      ),
+    cumulative: cumulativePoints.as("cumulative"),
+    delta: monthlyDelta.as("delta"),
   })
   .from(players)
   .leftJoin(
@@ -58,9 +56,8 @@ const results = await db
   )
   .groupBy(players.id)
   .orderBy(
-    desc(
-      sql`coalesce(sum(case when ${pointTransactions.createdAt} >= ${startOfMonth.getTime()} then ${pointTransactions.points} else 0 end), 0)`,
-    ),
+    desc(cumulativePoints),
+    desc(monthlyDelta),
     players.name,
   );
 
