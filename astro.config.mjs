@@ -8,18 +8,9 @@ import cloudflare from "@astrojs/cloudflare";
 // https://astro.build/config
 export default defineConfig({
   output: "server",
+  adapter: cloudflare(),
 
   vite: {
     plugins: [tailwindcss()],
   },
-
-  i18n: {
-    defaultLocale: "it",
-    locales: ["en", "it"],
-    routing: {
-      prefixDefaultLocale: false,
-    },
-  },
-
-  adapter: cloudflare(),
 });

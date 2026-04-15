@@ -23,4 +23,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# local tooling state
 .wrangler/
+.playwright-cli/

@@ -8,7 +8,7 @@
     "db:studio": "drizzle-kit studio",
     "db:studio:local": "drizzle-kit studio --config drizzle.config.local.ts",
     "deploy": "npx astro build && npx wrangler deploy",
-    "dev": "npx astro build && npx wrangler dev",
+    "dev": "npx astro dev",
     "lint": "npx prettier . --write && npx sort-package-json",
     "typecheck": "npx astro check"
   },
